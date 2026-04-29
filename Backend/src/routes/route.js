@@ -1,12 +1,14 @@
 import express from "express";
-import {getShortUrl,redirectUrl} from "../controller/url.controller.js";
+import {getShortUrl,redirectUrl,register,login} from "../controller/url.controller.js";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const route = express.Router();
 
 
-
-route.post('/shorten',getShortUrl);
-route.get('/:shortUrl',redirectUrl);
+route.post('/register',register);
+route.post('/login',login);
+route.post('/shorten',authMiddleware ,getShortUrl);
+route.get('/:shortUrl',authMiddleware,redirectUrl);
 
 
 

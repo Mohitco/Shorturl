@@ -1,4 +1,9 @@
+import dotenv from "dotenv";
 import mongoose from "mongoose";
+import mysql from "mysql2/promise";
+
+dotenv.config();
+
 
 
 const connectDB = async () => {
@@ -13,4 +18,13 @@ const connectDB = async () => {
 };
 
 
-export default connectDB;
+const pool = mysql.createPool({
+  host: process.env.SQL_HOST,
+  user: process.env.SQL_USER,
+  password: process.env.SQL_PASS,
+  database: 'shorturl_users',
+  waitForConnections: true,
+  connectionLimit: 10
+});
+
+export {connectDB,pool};
