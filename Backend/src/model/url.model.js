@@ -2,23 +2,31 @@ import mongoose from "mongoose";
 
 
 const urlSchema = new mongoose.Schema({
+    user_id: {
+        type: Number,
+        index: true,
+        default : null
+    },
     shortUrl: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     longUrl: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     clicks: {
         type: Number,
-        required: true,
         default: 0
+    },
+    expireAt : {
+        type: Date,
+        required : true
     }
-},{timestamps : true});
+}, { timestamps: true });
 
+urlSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 const URL = mongoose.model("URL",urlSchema);
 

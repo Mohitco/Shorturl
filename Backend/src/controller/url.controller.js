@@ -130,15 +130,15 @@ const login = async (req, res) => {
 
 const getShortUrl = async (req, res) => {
     try {
-        const { userid, longUrl } = req.body;
-
-        if (!userid || !longUrl) {
+        const { user_id, longUrl, expireAt } = req.body;
+        if (!longUrl) {
             return res.status(400).json({
-                message: "Userid and longUrl are required"
+                message: "longUrl are required"
             });
         }
 
-        const [verifyUser] = await pool.query("SELECT * FROM users WHERE id = ?", [userid]);
+    if(user_id !== null){
+        const [verifyUser] = await pool.query("SELECT * FROM users WHERE id = ?", [user_id]);
 
         if(verifyUser.length === 0) return res.status(401).json({
             message: "User not found"
@@ -163,15 +163,46 @@ const getShortUrl = async (req, res) => {
         }
 
         const newUrl = await URL.create({
-            userid,
+            user_id,
             shortUrl: shortId,
-            longUrl
+            longUrl,
+            expireAt
         });
 
         return res.status(201).json({
             message: "Successfully Created",
             shortUrl: `${process.env.BASE_URL}${newUrl.shortUrl}`
         });
+    } else{
+        const existing = await URL.findOne({ longUrl });
+
+        if (existing) {
+            return res.status(200).json({
+                message: "URL already shortened",
+                shortUrl: `${process.env.BASE_URL}${existing.shortUrl}`
+            });
+        }
+        let shortId;
+        let isUnique = false;
+
+        while (!isUnique) {
+            shortId = nanoid(5);
+            const exists = await URL.findOne({ shortUrl: shortId });
+            if (!exists) isUnique = true;
+        }
+
+        const newUrl = await URL.create({
+            user_id,
+            shortUrl: shortId,
+            longUrl,
+            expireAt
+        });
+
+        return res.status(201).json({
+            message: "Successfully Created",
+            shortUrl: `${process.env.BASE_URL}${newUrl.shortUrl}`
+        });
+    }
 
     } catch (error) {
         return res.status(500).json({
@@ -189,7 +220,7 @@ const redirectUrl = async (req, res) => {
 
         if (!url) {
             return res.status(404).json({
-                message: "URL not found"
+                message: "Expired URL Or Invalid URL"
             });
         }
 
