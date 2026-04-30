@@ -8,7 +8,7 @@ const route = express.Router();
 route.post('/register',register);
 route.post('/login',login);
 route.post('/shorten',authMiddleware ,getShortUrl);
-route.get('/:shortUrl',authMiddleware,redirectUrl);
+route.get('/:shortUrl',redirectUrl);
 
 
 
