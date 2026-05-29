@@ -2,6 +2,7 @@ import express from "express";
 import route from "./routes/route.js";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
+import cors from 'cors';
 
 const app = express();
 
@@ -9,6 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+app.use(cors());
 
 
 const limiter = rateLimit({
